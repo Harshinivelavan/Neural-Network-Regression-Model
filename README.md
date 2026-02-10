@@ -55,123 +55,137 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
-# ----------------------------------------
-# Load Dataset
-# ----------------------------------------
-dataset1 = pd.read_csv('MyMLData.csv')
+# -------------------------------------------------
+# Load dataset from CSV
+dataset1 = pd.read_csv("k.csv")   # make sure k.csv is in the same folder
+
+# Check columns (optional but useful)
+print(dataset1.head())
 
 X = dataset1[['Input']].values
 y = dataset1[['Output']].values
 
-# ----------------------------------------
-# Train-Test Split
-# ----------------------------------------
+# -------------------------------------------------
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.33, random_state=33
+    X, y, test_size=0.3, random_state=33
 )
 
-# ----------------------------------------
-# Scaling
-# ----------------------------------------
-scaler = MinMaxScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+# -------------------------------------------------
+# Scaling (important!)
+x_scaler = MinMaxScaler()
+y_scaler = MinMaxScaler()
 
-# ----------------------------------------
-# Convert to PyTorch Tensors
-# ----------------------------------------
+X_train = x_scaler.fit_transform(X_train)
+X_test = x_scaler.transform(X_test)
+
+y_train = y_scaler.fit_transform(y_train)
+y_test = y_scaler.transform(y_test)
+
+# -------------------------------------------------
+# Convert to tensors
 X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
-y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
+y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
 
 X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
-y_test_tensor = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
+y_test_tensor = torch.tensor(y_test, dtype=torch.float32)
 
-# ----------------------------------------
+# -------------------------------------------------
 # Neural Network Model
-# ----------------------------------------
 class NeuralNet(nn.Module):
     def __init__(self):
         super().__init__()
         self.fc1 = nn.Linear(1, 8)
-        self.fc2 = nn.Linear(8, 12)
-        self.fc3 = nn.Linear(12, 1)
+        self.fc2 = nn.Linear(8, 1)
         self.relu = nn.ReLU()
         self.history = {'loss': []}
 
     def forward(self, x):
         x = self.relu(self.fc1(x))
-        x = self.relu(self.fc2(x))
-        x = self.fc3(x)  # Regression output
+        x = self.fc2(x)
         return x
 
-# ----------------------------------------
-# Initialize Model, Loss, Optimizer
-# ----------------------------------------
+# -------------------------------------------------
+# Initialize model, loss, optimizer
 ai_brain = NeuralNet()
 criterion = nn.MSELoss()
-optimizer = optim.RMSprop(ai_brain.parameters(), lr=0.001)
+optimizer = optim.Adam(ai_brain.parameters(), lr=0.01)
 
-# ----------------------------------------
-# Training Function
-# ----------------------------------------
-def train_model(ai_brain, X_train, y_train, criterion, optimizer, epochs=2000):
+# -------------------------------------------------
+# Training function
+def train_model(model, X_train, y_train, epochs=2000):
     for epoch in range(epochs):
         optimizer.zero_grad()
-        
-        outputs = ai_brain(X_train)
+
+        outputs = model(X_train)
         loss = criterion(outputs, y_train)
-        
+
         loss.backward()
         optimizer.step()
-        
-        ai_brain.history['loss'].append(loss.item())
-        
+
+        model.history['loss'].append(loss.item())
+
         if epoch % 200 == 0:
-            print(f'Epoch [{epoch}/{epochs}], Loss: {loss.item():.6f}')
+            print(f"Epoch [{epoch}/{epochs}]  Loss: {loss.item():.6f}")
 
-# ----------------------------------------
-# Train the Model
-# ----------------------------------------
-train_model(ai_brain, X_train_tensor, y_train_tensor, criterion, optimizer)
+# Train the model
+train_model(ai_brain, X_train_tensor, y_train_tensor)
 
-# ----------------------------------------
-# Test the Model
-# ----------------------------------------
+# -------------------------------------------------
+# Testing
 with torch.no_grad():
-    predictions = ai_brain(X_test_tensor)
-    test_loss = criterion(predictions, y_test_tensor)
-    print(f'Test Loss: {test_loss.item():.6f}')
+    test_loss = criterion(ai_brain(X_test_tensor), y_test_tensor)
+    print(f"Test Loss: {test_loss.item():.6f}")
 
-# ----------------------------------------
-# Plot Loss Curve
-# ----------------------------------------
-loss_df = pd.DataFrame(ai_brain.history)
-
-plt.figure()
-plt.plot(loss_df['loss'])
+# -------------------------------------------------
+# Loss Plot
+plt.plot(ai_brain.history['loss'])
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
-plt.title("Loss during Training")
+plt.title("Training Loss")
 plt.show()
+
+# -------------------------------------------------
+# Example prediction
+with torch.no_grad():
+    sample = torch.tensor([[5.0]])
+    sample = x_scaler.transform(sample)
+    sample = torch.tensor(sample, dtype=torch.float32)
+
+    pred = ai_brain(sample)
+    pred = y_scaler.inverse_transform(pred.numpy())
+
+    print(f"Predicted output for input 5: {pred[0][0]:.2f}")
 
 
 ~~~
 ## Dataset Information
 
-<img width="186" height="346" alt="image" src="https://github.com/user-attachments/assets/c497cc89-ea23-423e-8094-0dc53b6a5a95" />
+
+<img width="186" height="245" alt="image" src="https://github.com/user-attachments/assets/972bbd6b-c3e4-4160-9edc-d6b2121e195c" />
+
+
 
 
 
 ## OUTPUT
 
+
+<img width="542" height="376" alt="Screenshot 2026-02-10 160254" src="https://github.com/user-attachments/assets/54a127bc-b224-4f75-bf30-9f03235b14b8" />
+
+
 ### Training Loss Vs Iteration Plot
 
-<img width="937" height="702" alt="image" src="https://github.com/user-attachments/assets/d24b79ca-97a2-4aeb-9427-ceb9acdab7ad" />
+
+
+<img width="695" height="559" alt="Screenshot 2026-02-10 160314" src="https://github.com/user-attachments/assets/a4785afd-04ed-4668-a23b-37eca0aa7ac7" />
+
 
 
 ### New Sample Data Prediction
 
-<img width="788" height="99" alt="image" src="https://github.com/user-attachments/assets/3e5d03ee-a26b-4bba-b357-d06f8a68b651" />
+<img width="414" height="43" alt="Screenshot 2026-02-10 160321" src="https://github.com/user-attachments/assets/b48f2ec7-79ff-43ac-9b96-55edf6bc3d22" />
+
 
 
 
