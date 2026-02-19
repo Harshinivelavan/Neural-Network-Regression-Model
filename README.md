@@ -10,7 +10,9 @@ Explain the problem statement
 
 ## Neural Network Model
 
-<img width="1209" height="883" alt="image" src="https://github.com/user-attachments/assets/97df1656-0992-47d0-80a8-dd506bd05022" />
+
+<img width="1081" height="788" alt="image" src="https://github.com/user-attachments/assets/24fd7f08-9f60-4afe-8dc7-1a8d0767db20" />
+
 
 
 ## DESIGN STEPS
@@ -44,9 +46,12 @@ Plot the performance plot
 Evaluate the model with the testing data.
 
 ## PROGRAM
-### Name: Harshini V
-### Register Number: 212224040109
+
+
 ~~~
+#Harshini V
+#212224040109
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -55,24 +60,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
-# -------------------------------------------------
-# Load dataset from CSV
-dataset1 = pd.read_csv("k.csv")   # make sure k.csv is in the same folder
-
-# Check columns (optional but useful)
+dataset1 = pd.read_csv("k.csv")   
 print(dataset1.head())
 
 X = dataset1[['Input']].values
 y = dataset1[['Output']].values
 
-# -------------------------------------------------
-# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=33
 )
 
-# -------------------------------------------------
-# Scaling (important!)
 x_scaler = MinMaxScaler()
 y_scaler = MinMaxScaler()
 
@@ -82,16 +79,14 @@ X_test = x_scaler.transform(X_test)
 y_train = y_scaler.fit_transform(y_train)
 y_test = y_scaler.transform(y_test)
 
-# -------------------------------------------------
-# Convert to tensors
 X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
 y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
 
 X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
 y_test_tensor = torch.tensor(y_test, dtype=torch.float32)
 
-# -------------------------------------------------
-# Neural Network Model
+#Name:V.Harshini
+#Register number:212224040109
 class NeuralNet(nn.Module):
     def __init__(self):
         super().__init__()
@@ -105,14 +100,11 @@ class NeuralNet(nn.Module):
         x = self.fc2(x)
         return x
 
-# -------------------------------------------------
-# Initialize model, loss, optimizer
+
 ai_brain = NeuralNet()
 criterion = nn.MSELoss()
 optimizer = optim.Adam(ai_brain.parameters(), lr=0.01)
 
-# -------------------------------------------------
-# Training function
 def train_model(model, X_train, y_train, epochs=2000):
     for epoch in range(epochs):
         optimizer.zero_grad()
@@ -128,16 +120,15 @@ def train_model(model, X_train, y_train, epochs=2000):
         if epoch % 200 == 0:
             print(f"Epoch [{epoch}/{epochs}]  Loss: {loss.item():.6f}")
 
-# Train the model
+
 train_model(ai_brain, X_train_tensor, y_train_tensor)
 
-# -------------------------------------------------
-# Testing
+
 with torch.no_grad():
     test_loss = criterion(ai_brain(X_test_tensor), y_test_tensor)
     print(f"Test Loss: {test_loss.item():.6f}")
 
-# -------------------------------------------------
+
 # Loss Plot
 plt.plot(ai_brain.history['loss'])
 plt.xlabel("Epochs")
@@ -145,8 +136,6 @@ plt.ylabel("Loss")
 plt.title("Training Loss")
 plt.show()
 
-# -------------------------------------------------
-# Example prediction
 with torch.no_grad():
     sample = torch.tensor([[5.0]])
     sample = x_scaler.transform(sample)
@@ -158,11 +147,13 @@ with torch.no_grad():
     print(f"Predicted output for input 5: {pred[0][0]:.2f}")
 
 
+
 ~~~
 ## Dataset Information
 
 
-<img width="186" height="245" alt="image" src="https://github.com/user-attachments/assets/972bbd6b-c3e4-4160-9edc-d6b2121e195c" />
+<img width="172" height="265" alt="image" src="https://github.com/user-attachments/assets/af19fba1-6d62-4070-814b-988b6b1a2ce0" />
+
 
 
 
@@ -171,20 +162,30 @@ with torch.no_grad():
 ## OUTPUT
 
 
-<img width="542" height="376" alt="Screenshot 2026-02-10 160254" src="https://github.com/user-attachments/assets/54a127bc-b224-4f75-bf30-9f03235b14b8" />
+<img width="448" height="375" alt="image" src="https://github.com/user-attachments/assets/35021d4c-0a71-4313-9453-a30e77be50cf" />
+
+
+
+
 
 
 ### Training Loss Vs Iteration Plot
 
 
+<img width="707" height="555" alt="image" src="https://github.com/user-attachments/assets/e4e2f0fc-7094-41c7-aa23-c21922d3d92b" />
 
-<img width="695" height="559" alt="Screenshot 2026-02-10 160314" src="https://github.com/user-attachments/assets/a4785afd-04ed-4668-a23b-37eca0aa7ac7" />
+
 
 
 
 ### New Sample Data Prediction
 
-<img width="414" height="43" alt="Screenshot 2026-02-10 160321" src="https://github.com/user-attachments/assets/b48f2ec7-79ff-43ac-9b96-55edf6bc3d22" />
+
+
+<img width="370" height="38" alt="image" src="https://github.com/user-attachments/assets/ccce0bde-88b5-47f6-be02-df7b1e65309b" />
+
+
+
 
 
 
